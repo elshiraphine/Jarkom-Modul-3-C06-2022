@@ -1,9 +1,9 @@
 # Jarkom-Modul-3-C06-2022
 
 ## Anggota Kelompok
-5025201050 - Elshe Erviana Angely
-5025201051 - Muhammad Fath Mushaffa Azhar
-5025201076 - Raul Ilma Rajasa
+1. 5025201050 - Elshe Erviana Angely
+2. 5025201051 - Muhammad Fath Mushaffa Azhar
+3. 5025201076 - Raul Ilma Rajasa
 
 ## Topologi
 Membuat topologi dengan **WISE** sebagai DNS Server, **Westalis** sebagai DHCP Server, **Berlint** sebagai Proxy Server, dan **Ostania** sebagai DHCP Relay. </br >
