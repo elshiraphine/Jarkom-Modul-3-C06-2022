@@ -165,3 +165,68 @@ Kemudian lakukan restart dengan perintah:
 service isc-dhcp-server restart
 ```
 
+## Soal 8
+### 8.1
+Client hanya dapat mengakses internet diluar (selain) hari & jam kerja (senin-jumat
+08.00 - 17.00) dan hari libur (dapat mengakses 24 jam penuh). Pada berlint buat konfigurasi dengan:
+```
+echo 'acl JAM_KERJA time MTWHF 08:00-17:00
+acl LUAR_JAM_KERJA time MTWHF 00:00-07:59
+acl LUAR_JAM_KERJA time MTWHF 17:01-23:59
+acl AKHIR_PEKAN time AS 00:00-23:59' > '/etc/squid/acl.conf'
+```
+Kemudian tambahkan
+```
+echo 'include /etc/squid/acl.conf
+http_access deny JAM_KERJA
+http_access allow LUAR_JAM_KERJA
+http_access allow AKHIR_PEKAN
+http_port 5000
+visible_hostname Berlint' > '/etc/squid/squid.conf'
+```
+
+### 8.2
+Adapun pada hari dan jam kerja sesuai nomor (1), client hanya dapat mengakses domain
+loid-work.com dan franky-work.com. Maka tambahkan
+```
+echo 'loid-work.com
+franky-work.com' > '/etc/squid/restrict-sites.acl'
+```
+dan
+```
+acl WHITELIST dstdomain "/etc/squid/restrict-sites.acl"
+```
+pada `/etc/squid/squid.conf`
+
+### 8.3
+Saat akses internet dibuka, client dilarang untuk mengakses web tanpa HTTPS. (Contoh web
+HTTP: http://example.com) <br />
+Maka pada `/etc/squid/squid.conf` tambahkan:
+```
+acl blocked_port port 80
+http_access deny blocked_port
+http_access allow all
+```
+
+### 8.4
+Agar menghemat penggunaan, akses internet dibatasi dengan kecepatan maksimum 128
+Kbps pada setiap host (Kbps = kilobit per second; lakukan pengecekan pada tiap host, ketika 2 host akses internet pada saat bersamaan, keduanya mendapatkan speed maksimal yaitu 128 Kbps)
+```
+echo 'delay_pools 1 #
+delay_class 1 2
+# delay_class 2 2
+delay_access 1 allow AKHIR_PEKAN
+delay_parameters 1 none 16000/16000
+delay_access 1 deny all' > '/etc/squid/acl-bandwidth.conf'
+```
+
+### 8.5
+Setelah diterapkan, ternyata peraturan nomor (4) mengganggu produktifitas saat hari kerja, dengan demikian pembatasan kecepatan hanya diberlakukan untuk pengaksesan internet pada hari libur <br />
+Pada Berlint, tambahkan konfigurasi berikut pada `/etc/squid/acl-bandwidth.conf`:
+```
+echo 'delay_pools 1 #
+delay_class 1 2
+delay_access 1 allow AKHIR_PEKAN
+delay_parameters 1 none 16000/16000
+delay_access 1 deny all' > '/etc/squid/acl-bandwidth.conf'
+```
