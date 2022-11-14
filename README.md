@@ -165,6 +165,77 @@ Kemudian lakukan restart dengan perintah:
 service isc-dhcp-server restart
 ```
 
+## Soal 5
+Client mendapatkan DNS dari WISE dan client dapat terhubung dengan internet melalui DNS tersebut. <br />
+Pada WISE, tambahkan konfigurasi forwarders pada `/etc/bind/named.conf.options`
+```
+echo '
+options {
+    directory "/var/cache/bind";
+    # Tambahkan Berikut
+    forwarders {
+    192.168.122.1;
+    };
+    // dnssec-validation auto;
+    allow-query{any;};
+    auth-nxdomain no; # conform to RFC1035
+    listen-on-v6 { any; };
+};' > /etc/bind/named.conf.options
+```
+Kemudian pada **Westalis** pada file `/etc/dhcp/dhcp.conf` tambahkan pada network 192.182.1.0 dan 192.182.3.0
+```
+option domain-name-servers 192.182.2.2; # IP WISE
+
+option domain-name-servers 192.182.2.2; # IP WISE
+```
+Kemudian lakukan restart dengan perintah:
+```
+service isc-dhcp-server restart
+```
+## Soal 6
+Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch1 selama 5 menit sedangkan pada client yang melalui Switch3 selama 10 menit. Dengan waktu
+maksimal yang dialokasikan untuk peminjaman alamat IP selama 115 menit.
+- Pada Westalis, tambahkan konfigurasi di bawah dengan membuka `/etc/dhcp/dhcpd.conf` pada network 192.182.1.0
+    ```
+    default-lease-time 300;
+    max-lease-time 3900;
+    ```
+- Pada Westalis, tambahkan konfigurasi di bawah dengan membuka `/etc/dhcp/dhcpd.conf` pada network 192.182.3.0
+    ```
+    default-lease-time 600;max-lease-time 3900;
+    ```
+Kemudian lakukan restart dhcp server dengan perintah:
+Kemudian lakukan restart dengan perintah:
+```
+service isc-dhcp-server restart
+```
+
+## Soal 7
+Pada Eden, setup nameservernya di `/etc/resolv.conf` menjadi 192.168.122.1
+```
+echo 'nameserver 192.168.122.1' > '/etc/resolv.conf'
+```
+Pada Eden, dapatkan hardware address Eden dengan menjalankan perintah ‘ip a’ dan
+fokus pada eth0 bagian link/ether sehingga dari situ didapatkan:
+![img2](ss/img2.png)
+Pada Eden, setup `/etc/network/interfaces` dan tambahkan konfigurasi berikut
+```
+echo 'auto eth0
+iface eth0 inet dhcp
+hwaddress ether d6:10:58:ba:a6:a4' > '/etc/network/interfaces'
+```
+Pada Westalis, tambahkan konfigurasi host Eden di bawah pada `/etc/dhcp/dhcpd.conf`:
+```
+host Eden {
+ hardware ethernet d6:10:58:ba:a6:a4;
+ fixed-address 192.182.3.13;
+}
+```
+Kemudian lakukan restart dengan perintah:
+```
+service isc-dhcp-server restart
+```
+
 ## Soal 8
 ### 8.1
 Client hanya dapat mengakses internet diluar (selain) hari & jam kerja (senin-jumat
